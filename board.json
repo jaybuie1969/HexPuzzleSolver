@@ -1,0 +1,133 @@
+{
+	"positions": [
+		"  hub",
+		"01:00",
+		"03:00",
+		"05:00",
+		"07:00",
+		"09:00",
+		"11:00"
+	],
+	"adjacencies": [
+		[
+			{
+				"position": 0,
+				"face": 0
+			},
+			{
+				"position": 1,
+				"face": 3
+			}
+		],
+		[
+			{
+				"position": 0,
+				"face": 1
+			},
+			{
+				"position": 2,
+				"face": 4
+			}
+		],
+		[
+			{
+				"position": 0,
+				"face": 2
+			},
+			{
+				"position": 3,
+				"face": 5
+			}
+		],
+		[
+			{
+				"position": 0,
+				"face": 3
+			},
+			{
+				"position": 4,
+				"face": 0
+			}
+		],
+		[
+			{
+				"position": 0,
+				"face": 4
+			},
+			{
+				"position": 5,
+				"face": 1
+			}
+		],
+		[
+			{
+				"position": 0,
+				"face": 5
+			},
+			{
+				"position": 6,
+				"face": 2
+			}
+		],
+		[
+			{
+				"position": 1,
+				"face": 4
+			},
+			{
+				"position": 6,
+				"face": 1
+			}
+		],
+		[
+			{
+				"position": 2,
+				"face": 5
+			},
+			{
+				"position": 1,
+				"face": 2
+			}
+		],
+		[
+			{
+				"position": 3,
+				"face": 0
+			},
+			{
+				"position": 2,
+				"face": 3
+			}
+		],
+		[
+			{
+				"position": 4,
+				"face": 1
+			},
+			{
+				"position": 3,
+				"face": 4
+			}
+		],
+		[
+			{
+				"position": 5,
+				"face": 2
+			},
+			{
+				"position": 4,
+				"face": 5
+			}
+		],
+		[
+			{
+				"position": 6,
+				"face": 3
+			},
+			{
+				"position": 5,
+				"face": 0
+			}
+		]
+	]
+}
