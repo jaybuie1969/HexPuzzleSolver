@@ -1,4 +1,5 @@
 # HexPuzzleSolver
+Python-based algorithm to find solution for the hexagonal puzzle in the pictures
 
 As the pictures show, this Python script is all about an old puzzle.  A friend picked this up at Goodwill and gave it to me.  I have vague memories of my father having one on his dresser in the 1970s when I was a young boy, so I was intrigued.
 
