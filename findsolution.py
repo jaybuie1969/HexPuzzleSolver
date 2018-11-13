@@ -1,4 +1,4 @@
-# This script is intended to perform a "brute force" iterative solution of a puzzle consisting of seven hexagonal pieces
+# This script is intended to perform a semi-intelligent iterative solution of a puzzle consisting of seven hexagonal pieces
 # Each piece has numbers 1 - 6 on its sides
 # The goal is to line up six of the pieces around a central piece (seven in all) so that the numbers on each adjacent face match
 
@@ -46,7 +46,7 @@ def recursePiecesToSolution(available, alreadyTaken, gamePieces, permutation):
         permutation = iterateRotationsToSolution(alreadyTaken, gamePieces, permutation)
 
         # Print the number of permutations tried so far
-        print("{}".format(format(permutation, ",d")))
+        # print("{}".format(format(permutation, ",d")))
 
         # If the function makes it to this point, the solution has not yet been found (script exits once solution is found), this means that this piece configuration
         # has no solutions, clear out alreadyTaken and start over again
@@ -58,8 +58,8 @@ def recursePiecesToSolution(available, alreadyTaken, gamePieces, permutation):
 def iterateRotationsToSolution(pieceOrder, gamePieces, permutationStart):
     """
     This function does the other half of the heavy lifting to solve the puzzle
-    It takes in an ordered (i.e. pieces placed into position) set of game pieces and iterates through all possible piece rotations until it finds the
-    one that solves the puzzle
+    It takes in an ordered (i.e. pieces placed into position) set of game pieces and iterates through logical piece rotations until it finds the one that solves
+    the puzzle -- if it exists within this game piece ordering
 
     :param pieceOrder: a list of position indices for the gamePieces param that are being recursively tested, it represents the order in which the pieces are laid out in the game board, the first piece is placed in the center and the remaining pieces placed clockwise around it, starting at the top
     :param gamePieces: a list of game pieces that are being recursively tested
@@ -75,10 +75,13 @@ def iterateRotationsToSolution(pieceOrder, gamePieces, permutationStart):
     rotatorMax = [rotatorMaxValue] * len(gamePieces)
     rotatorStart = [0] * len(gamePieces)
     rotator = [0] * len(gamePieces)
+    positionsRotated = [0] * len(gamePieces)
     overflow = False
 
-    # Iterate from the starting rotator configuration (all zeros) to the final rotator configuration (all maximum rotation index value)
-    while ((rotator != rotatorStart) or (not overflow)):
+    # Initially assume that the solution is within this piece layout (i.e. one of these rotators will succeed), and iterate from the starting rotator
+    # configuration (all zeros) until the most significant rotator element (position 0) overflows
+    allRotatorsWillFail = False
+    while ((not allRotatorsWillFail) and ((rotator != rotatorStart) or (not overflow))):
         # Increment permutation (counter) for this check
         permutation = permutation + 1
 
@@ -99,14 +102,42 @@ def iterateRotationsToSolution(pieceOrder, gamePieces, permutationStart):
 
         # Conditionally iterate over the board's position adjacencies to see which ones match and which ones don't
         # Once two adjacent faces are found not to have the same value, this configuration fails
-        testCount = len(gameBoard["adjacencies"])
+        testCount = len(gamePieces)
+        i = testCount - 1
         failedAdjacencyTest = False
-        i = 0
 
-        while ((not failedAdjacencyTest) and (i < testCount)):
-            # Check to see if the two faces in question match and increment i before returning to the top of this loop
-            failedAdjacencyTest = (boardConfiguration[gameBoard["adjacencies"][i][0]["position"]][gameBoard["adjacencies"][i][0]["face"]] != boardConfiguration[gameBoard["adjacencies"][i][1]["position"]][gameBoard["adjacencies"][i][1]["face"]])
-            i = i + 1
+        # Iterate through each of the pieces (except the hub, all other pieces include a hub check) to check adjacencies, bailing out as soon as the tests fail
+        while ((not failedAdjacencyTest) and (i > 0)):
+          # Check to see if the adjacency tests for this piece are successful
+
+          # All positions will test their front adjacency
+          adjacencyTests = [
+            "front"
+          ]
+
+          # All positions short of the last one will also test their left adjacency
+          if ((i + 2) <= testCount):
+            adjacencyTests.append("left")
+
+          # The final position (1 is the final, since 0 is the hub, and all hub-related adjacency tests are covered in the radial pieces' tests) will also
+          # test its right adjacency
+          if (i <= 1):
+            adjacencyTests.append("right")
+
+          # Iterate through adjacencyTests and count the ones that are successful
+          successfulTests = 0
+          for test in adjacencyTests:
+            if (boardConfiguration[i][gameBoard["adjacencies"][str(i)][test]["face"]] == boardConfiguration[gameBoard["adjacencies"][str(i)][test]["otherPiece"]["position"]][gameBoard["adjacencies"][str(i)][test]["otherPiece"]["face"]]):
+              successfulTests = successfulTests + 1
+
+          # The adjacency tests for this board confugration fails if all of this piece's adjacency tests were not successful
+          failedAdjacencyTest = (successfulTests < len(adjacencyTests))
+          if (not failedAdjacencyTest):
+            # This piece did not fail its adjacency test, move to the next piece and check it
+            i = i - 1
+
+          # For pieces beyond the first one being tested, only one successful test means that the no rotator can be valid for this game piece organization
+          allRotatorsWillFail = ((i < (testCount - 1)) and (failedAdjacencyTest) and (successfulTests == 1))
 
         if (not failedAdjacencyTest):
             # WE FOUND THE SOLUTION!!
@@ -125,13 +156,12 @@ def iterateRotationsToSolution(pieceOrder, gamePieces, permutationStart):
             # Exit this script TRIUMPHANTLY!
             exit()
 
-        # If the script has gotten this far, this board configuration did not pass at least on adjacency test, tick the rotator list values by one
+        # If the script has gotten this far, this board configuration did not pass at least one adjacency test, tick the rotator list values by one,
+        # starting at the piece where the adjacency tests failed
 
-        # Initialize i to the right-most element in the rotator array, and carry to True
-        i = len(rotator) - 1
+        # Initialize carry to True and iterate i from the starting value to zero, as long as carry stays True
         carry = True
-
-        # Iterate i from the starting value to zero, as long as carry stays True
+        iOriginal = i
         while ((i >= 0) and (carry)):
             if (carry):
                 # carry is true, increment the value at the rotator's current position, wrapping around and back to zero when needed (i.e. when another
@@ -142,7 +172,8 @@ def iterateRotationsToSolution(pieceOrder, gamePieces, permutationStart):
             # Move to the previous element in the rotator array
             i = i - 1
 
-        overflow = (rotator == rotatorStart)
+        # This rotator overflowed if the original i (i.e. before rotating was zero and the rotator had to carry)
+        overflow = (iOriginal == 0) and (carry)
 
     return permutation
 
@@ -164,7 +195,7 @@ if (__name__ == "__main__"):
         gamePieces = json.load(jsonData)
 
     # Now pass the pieces into the function that does half of the heavy lifting
-    recursePiecesToSolution(list(range(0, len(gamePieces))), [], gamePieces, 0);
+    recursePiecesToSolution(list(range(0, len(gamePieces))), [], gamePieces, 0)
 
     # If this script made it this far without exiting, no solution was found
     print("No Solution Found")
