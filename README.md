@@ -5,4 +5,5 @@ As the pictures show, this Python script is all about an old puzzle.  A friend p
 
 Each of the seven haxagonal pieces can be placed on any of the seven post, with any rotation.  The goal is to get the pieces to line up so that the numbers are the same on each adjacent face.  See the third picture for the solved state.  It looks deceptively simple, but actually has over 1.4 billion board configurations, and only six are solutions -- all rotationally symetric to each other.
 
-This script is a sequential brute-force solution to this puzzle.  It works and is a good first effort, but it trades computing power for time.  The next version will be threaded so that it can be parallelized and make effective use of an on-demand cloud environment like AWS or Azure.
+Updated Nobember 13, 2018 -- SWEET!
+Modified the retational testing algorithm to quickly know when a given game peice ordering cannot produce a solution, and then bail out of that set of iterations - this cut the processing time on my machine from around 95 - 95 minutes to less than one second!
